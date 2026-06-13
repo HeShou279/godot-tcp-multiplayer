@@ -40,8 +40,8 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.5
-text = "0.0.0.0"
-placeholder_text = "绑定地址，0.0.0.0 = 所有网卡"
+text = "127.0.0.1"
+placeholder_text = "输入服务器地址,默认 127.0.0.1"
 
 [node name="LineEdit2" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer1" unique_id=1689941031]
 layout_mode = 2
