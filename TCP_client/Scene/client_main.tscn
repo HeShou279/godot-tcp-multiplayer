@@ -43,7 +43,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.5
 text = "127.0.0.1"
-placeholder_text = "输入服务器地址,默认 127.0.0.1"
+placeholder_text = "输入服务器 LAN IP 地址"
 
 [node name="LineEdit2" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1784567376]
 layout_mode = 2
