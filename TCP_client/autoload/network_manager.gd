@@ -241,12 +241,24 @@ func _on_server_disconnected() -> void:
 
 func _close_connection() -> void:
 	_disconnect_signals()
+	# 先清理所有实例（避免 peer 置空后残留节点调用 is_multiplayer_authority 崩溃）
+	_clear_containers()
 	if _peer.get_connection_status() != MultiplayerPeer.CONNECTION_DISCONNECTED:
 		_peer.close()
 	if multiplayer.multiplayer_peer == _peer:
 		multiplayer.multiplayer_peer = null
 	_is_connected = false
 	_peer_id = 0
+
+func _clear_containers() -> void:
+	var player_container: Node = get_node_or_null(PLAYER_CONTAINER_PATH)
+	if player_container:
+		for child: Node in player_container.get_children():
+			child.queue_free()
+	var bullet_container: Node = get_node_or_null(BULLET_CONTAINER_PATH)
+	if bullet_container:
+		for child: Node in bullet_container.get_children():
+			child.queue_free()
 
 func _disconnect_signals() -> void:
 	if multiplayer.connection_failed.is_connected(_on_connection_failed):

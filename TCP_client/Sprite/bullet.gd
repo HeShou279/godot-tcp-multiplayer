@@ -39,7 +39,7 @@ func _exit_tree() -> void:
 # ============================================================
 
 func _physics_process(delta: float) -> void:
-	if not is_multiplayer_authority():
+	if multiplayer.multiplayer_peer == null or not is_multiplayer_authority():
 		return
 
 	var movement: Vector2 = Vector2.RIGHT.rotated(rotation) * BulletTracker.SPEED * delta
@@ -55,6 +55,8 @@ func _physics_process(delta: float) -> void:
 # ============================================================
 
 func _on_body_entered(body: Node2D) -> void:
+	if multiplayer.multiplayer_peer == null:
+		return
 	print("[Bullet %d] body_entered fired! body=%s, class=%s, is_auth=%s" % [bullet_id, body.name, body.get_class(), is_multiplayer_authority()])
 
 	if not is_multiplayer_authority():

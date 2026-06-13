@@ -33,7 +33,7 @@ func _ready() -> void:
 # ============================================================
 
 func _input(event: InputEvent) -> void:
-	if not is_multiplayer_authority():
+	if multiplayer.multiplayer_peer == null or not is_multiplayer_authority():
 		return
 
 	if event is InputEventMouseButton:
@@ -45,7 +45,7 @@ func _input(event: InputEvent) -> void:
 # ============================================================
 
 func _physics_process(_delta: float) -> void:
-	if not is_multiplayer_authority():
+	if multiplayer.multiplayer_peer == null or not is_multiplayer_authority():
 		return
 	_move()
 	_update_camera()
