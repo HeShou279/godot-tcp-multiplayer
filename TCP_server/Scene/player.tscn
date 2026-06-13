@@ -1,11 +1,15 @@
 [gd_scene load_steps=3 format=3 uid="uid://bhwp0x2pqclmn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kelma"]
-size = Vector2(2, 2)
+size = Vector2(114, 116)
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_y8w33"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
 
 [node name="player" type="CharacterBody2D"]
+collision_layer = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_kelma")

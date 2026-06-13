@@ -13,8 +13,12 @@ config_version=5
 config/name="TCP_Server"
 config/tags=PackedStringArray("服务器")
 run/main_scene="uid://d2kn2fd5s2gki"
-config/features=PackedStringArray("4.4", "GL Compatibility")
+config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+NetworkManager="*res://autoload/network_manager.gd"
 
 [display]
 

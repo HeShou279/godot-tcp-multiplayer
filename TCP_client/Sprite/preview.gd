@@ -1,40 +1,47 @@
-## 预览体,用于在生成玩家实例前定位生成位置
+## 预览体 — 生成角色前跟随鼠标定位
 extends Sprite2D
 
-## 预览确认(位置坐标)
-signal Preview_Confirm(Position:Vector2)
+# ============================================================
+# 信号
+# ============================================================
 
-## 左键状态
-var LeftMouse_Status:bool
-## 预览状态
-var Preview_Status:bool = false
-## 鼠标坐标(基于画布层)
-@onready var Mouse_Position : Vector2 
+signal preview_confirm(position: Vector2)
 
+# ============================================================
+# 属性
+# ============================================================
+
+var _preview_active: bool = false
+
+# ============================================================
+# 生命周期
+# ============================================================
 
 func _ready() -> void:
-	self.visible = false
+	visible = false
 
-## 侦测事件状态
-func _input(event:InputEvent)->void:
-	# 判断事件是否来自鼠标点击
+# ============================================================
+# 输入处理
+# ============================================================
+
+func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
-		LeftMouse_Status = event.is_action_pressed("Click_Mouse_Left")
-		
-		# 如果处于预览状态且鼠标左键按下,广播预览确认
-		if Preview_Status and LeftMouse_Status:
-			Preview_Confirm.emit(Mouse_Position)
-			Preview_Status = false
-			self.visible = false
-	
-	# 如果事件来自鼠标移动,且处于预览状态,则跟随鼠标
-	if event is InputEventMouseMotion:
-		if Preview_Status:
-			Mouse_Position = get_global_mouse_position()
-			global_position = Mouse_Position
+		var left_pressed: bool = event.is_action_pressed("Click_Mouse_Left")
+		if _preview_active and left_pressed:
+			preview_confirm.emit(get_global_mouse_position())
+			_preview_active = false
+			visible = false
 
-## 显示预览,用于调整可见性
-func Show_Preview():
-	self.modulate.a8 = 150
-	Preview_Status = true
-	self.visible = true
+	if event is InputEventMouseMotion:
+		if _preview_active:
+			global_position = get_global_mouse_position()
+
+# ============================================================
+# 公开方法
+# ============================================================
+
+## 显示预览体，开始跟随鼠标
+func show_preview() -> void:
+	modulate.a = 150
+	_preview_active = true
+	visible = true

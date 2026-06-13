@@ -1,66 +1,99 @@
-## 玩家实例
+## 玩家角色 — 权威端驱动的 CharacterBody2D
+## 仅拥有网络权限的客户端处理输入与移动，MultiplayerSynchronizer 自动同步。
 extends CharacterBody2D
 
-## 移动速度
-@export var speed := 400
-## 移动加速度
-@export var acceleration := 50
-## 摩擦值
-@export var friction := 30
+# ============================================================
+# 导出属性
+# ============================================================
 
-## main节点
-@onready var Main_Node : Node = get_tree().current_scene
+@export var speed: float = 400.0
+@export var acceleration: float = 50.0
+@export var friction: float = 30.0
+
+# ============================================================
+# 节点引用
+# ============================================================
+
+@onready var _id_label: Label = $ID_Label
+@onready var _sprite: Sprite2D = $Sprite2D
+
+# ============================================================
+# 生命周期
+# ============================================================
 
 func _enter_tree() -> void:
-	# 设置节点权限
+	# 从节点名还原网络权限 ID
 	set_multiplayer_authority(name.to_int())
 
 func _ready() -> void:
-	$ID_Label.text = "ID: " + self.name
-	
-	if is_multiplayer_authority():
-		self.position = Main_Node.Player_Position
+	_id_label.text = "ID: " + name
 
-## 侦测事件状态
-func _input(event:InputEvent)->void:
-	# 非权威体不处理该函数
-	if !is_multiplayer_authority():
+# ============================================================
+# 输入（仅权威端处理）
+# ============================================================
+
+func _input(event: InputEvent) -> void:
+	if not is_multiplayer_authority():
 		return
-	
-	# 判断事件是否来自鼠标点击
+
 	if event is InputEventMouseButton:
 		if event.is_action_pressed("Click_Mouse_Left"):
-			Player_Shoot()
-			
-			pass
+			_shoot()
 
-	
+# ============================================================
+# 物理帧（仅权威端处理）
+# ============================================================
 
 func _physics_process(_delta: float) -> void:
 	if not is_multiplayer_authority():
 		return
-	Move()
+	_move()
+	_update_camera()
 
-## 移动
-func Move():
-# 获取输入向量
-	var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+# ============================================================
+# 移动
+# ============================================================
 
-	# 计算移动方向
+func _move() -> void:
+	var input_vector: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+
 	if input_vector != Vector2.ZERO:
 		velocity = velocity.move_toward(input_vector * speed, acceleration)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, friction)
-	
-	# 摄像机聚焦自己
-	Main_Node.get_node("Camera2D").position = self.position
-	# 执行移动并处理碰撞
+
 	move_and_slide()
 
-## 生成子弹(发射弹幕)
-func Player_Shoot():
-	var direction = (get_global_mouse_position() - global_position).angle()
-	# 来自客户端rpc的调用:请求生成子弹
-	var Bullet_ID:int = randi()
-	Main_Node.Bullet_Dictionary[str(Bullet_ID)] = [Main_Node.SelfID,global_position,direction]
-	Main_Node.Request_Spawn_Bullet(Main_Node.SelfID, Bullet_ID)
+# ============================================================
+# 射击
+# ============================================================
+
+func _shoot() -> void:
+	var direction: float = (get_global_mouse_position() - global_position).angle()
+	NetworkManager.request_spawn_bullet(global_position, direction)
+
+# ============================================================
+# 受击动画
+# ============================================================
+
+## 播放超亮白闪受击动画（modulate > 1.0 产生过曝效果）
+func play_hit_animation() -> void:
+	if not _sprite:
+		return
+	print("[Player %s] play_hit_animation() called" % name)
+	var tw: Tween = create_tween()
+	var overbright: Color = Color(8, 8, 8, 1)
+	var normal: Color = Color(1, 1, 1, 1)
+	tw.tween_property(_sprite, "modulate", overbright, 0.05)
+	tw.tween_property(_sprite, "modulate", normal, 0.05)
+	tw.tween_property(_sprite, "modulate", overbright, 0.05)
+	tw.tween_property(_sprite, "modulate", normal, 0.05)
+
+# ============================================================
+# 摄像机
+# ============================================================
+
+func _update_camera() -> void:
+	var camera: Camera2D = get_tree().current_scene.get_node_or_null("Camera2D")
+	if camera:
+		camera.position = position

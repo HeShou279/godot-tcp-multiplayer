@@ -13,8 +13,13 @@ config_version=5
 config/name="TCP_Client"
 config/tags=PackedStringArray("客户端")
 run/main_scene="uid://d3arfq0hb4w02"
-config/features=PackedStringArray("4.4", "GL Compatibility")
+config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+NetworkManager="*res://autoload/network_manager.gd"
+BulletTracker="*res://autoload/bullet_tracker.gd"
 
 [display]
 

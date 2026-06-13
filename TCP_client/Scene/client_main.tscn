@@ -89,17 +89,9 @@ position = Vector2(-250, -250)
 position = Vector2(640, 360)
 position_smoothing_enabled = true
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://ej51k6nr040v")
-spawn_path = NodePath("Example_Area")
+[node name="Example_Area" type="Node" parent="."]
 
-[node name="Example_Area" type="Node" parent="MultiplayerSpawner"]
+[node name="BulletManager" type="Node" parent="."]
 
-[node name="MultiplayerSpawner2" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://qng86lvvx7oy")
-spawn_path = NodePath("BulletManager")
-
-[node name="BulletManager" type="Node" parent="MultiplayerSpawner2"]
-
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/ConnectToServer_Btn" to="." method="_ConnectToServer_Btn_press"]
-[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/GenerateRoles_Btn" to="." method="_GenerateRoles_Btn_press"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/ConnectToServer_Btn" to="." method="_on_connect_btn_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/GenerateRoles_Btn" to="." method="_on_generate_btn_pressed"]
