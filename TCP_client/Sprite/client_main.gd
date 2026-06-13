@@ -89,6 +89,8 @@ func _on_server_disconnected() -> void:
 	_connect_btn.disabled = false
 	_exit_Server_btn.disabled = true
 	_generate_btn.disabled = true
+	# 重置摄像头到初始位置
+	$Camera2D.position = Vector2(640, 360)
 
 func _on_remote_player_spawned(player_id: int) -> void:
 	_append_log("远程玩家加入，ID: %d" % player_id)

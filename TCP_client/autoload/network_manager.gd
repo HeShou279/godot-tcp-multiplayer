@@ -251,13 +251,16 @@ func _close_connection() -> void:
 	_peer_id = 0
 
 func _clear_containers() -> void:
+	# 先 remove_child 强制脱离场景树（立即失效路径引用），再延迟释放
 	var player_container: Node = get_node_or_null(PLAYER_CONTAINER_PATH)
 	if player_container:
 		for child: Node in player_container.get_children():
+			player_container.remove_child(child)
 			child.queue_free()
 	var bullet_container: Node = get_node_or_null(BULLET_CONTAINER_PATH)
 	if bullet_container:
 		for child: Node in bullet_container.get_children():
+			bullet_container.remove_child(child)
 			child.queue_free()
 
 func _disconnect_signals() -> void:
