@@ -1,0 +1,26 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Godot export binaries
+*.exe
+*.pck
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Claude AI
+.claude/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

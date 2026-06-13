@@ -1,0 +1,105 @@
+[gd_scene load_steps=3 format=3 uid="uid://d3arfq0hb4w02"]
+
+[ext_resource type="Script" uid="uid://dthpxjuidssrp" path="res://Sprite/client_main.gd" id="1_rl0qa"]
+[ext_resource type="PackedScene" uid="uid://dm4dpr2wjbw4j" path="res://Scene/preview.tscn" id="2_u116g"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_rl0qa")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="ColorRect" type="ColorRect" parent="MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+color = Color(0.548963, 0.548963, 0.548963, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Placeholder1" type="Control" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Placeholder1" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+text = "127.0.0.1"
+placeholder_text = "输入服务器地址,默认 127.0.0.1"
+
+[node name="LineEdit2" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.7
+text = "7788"
+placeholder_text = "端口,默认7788"
+
+[node name="ConnectToServer_Btn" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.7
+text = "连接服务器"
+
+[node name="GenerateRoles_Btn" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.7
+disabled = true
+text = "创建角色实例"
+
+[node name="Placeholder2" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 20
+
+[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 24
+text = "---
+"
+
+[node name="Preview" parent="." instance=ExtResource("2_u116g")]
+position = Vector2(-250, -250)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+position_smoothing_enabled = true
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://ej51k6nr040v")
+spawn_path = NodePath("Example_Area")
+
+[node name="Example_Area" type="Node" parent="MultiplayerSpawner"]
+
+[node name="MultiplayerSpawner2" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://qng86lvvx7oy")
+spawn_path = NodePath("BulletManager")
+
+[node name="BulletManager" type="Node" parent="MultiplayerSpawner2"]
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/ConnectToServer_Btn" to="." method="_ConnectToServer_Btn_press"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/GenerateRoles_Btn" to="." method="_GenerateRoles_Btn_press"]

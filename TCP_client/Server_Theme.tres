@@ -1,0 +1,11 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://cp6dou7o1733f"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2npsh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_muh8m"]
+
+[resource]
+Button/font_sizes/font_size = 24
+Button/styles/focus = SubResource("StyleBoxEmpty_2npsh")
+LineEdit/font_sizes/font_size = 24
+LineEdit/styles/focus = SubResource("StyleBoxEmpty_muh8m")

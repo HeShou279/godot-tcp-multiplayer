@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://dm4dpr2wjbw4j"]
+
+[ext_resource type="Texture2D" uid="uid://de38kurf0i00b" path="res://icon.svg" id="1_uct3c"]
+[ext_resource type="Script" uid="uid://cfe4ojibumj3x" path="res://Sprite/preview.gd" id="2_55bsr"]
+
+[node name="Preview" type="Sprite2D"]
+visible = false
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_uct3c")
+script = ExtResource("2_55bsr")
+
+[node name="Label" type="Label" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = 63.0
+offset_right = -8.0
+offset_bottom = -23.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 30
+text = "选择生成的位置"
+horizontal_alignment = 1

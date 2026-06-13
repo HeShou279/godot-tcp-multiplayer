@@ -1,0 +1,35 @@
+[gd_scene load_steps=5 format=3 uid="uid://ej51k6nr040v"]
+
+[ext_resource type="Texture2D" uid="uid://de38kurf0i00b" path="res://icon.svg" id="1_kelma"]
+[ext_resource type="Script" uid="uid://bb6lnjpexoo37" path="res://Sprite/player.gd" id="1_y8w33"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y8w33"]
+size = Vector2(114, 116)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_y8w33"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
+[node name="player" type="CharacterBody2D"]
+scale = Vector2(0.5, 0.5)
+motion_mode = 1
+script = ExtResource("1_y8w33")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_kelma")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_y8w33")
+
+[node name="ID_Label" type="Label" parent="."]
+offset_left = -120.0
+offset_top = 60.0
+offset_right = 120.0
+offset_bottom = 102.0
+theme_override_font_sizes/font_size = 30
+text = "ID: "
+horizontal_alignment = 1
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_y8w33")

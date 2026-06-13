@@ -1,0 +1,126 @@
+[gd_scene load_steps=2 format=3 uid="uid://d2kn2fd5s2gki"]
+
+[ext_resource type="Script" uid="uid://ccs8aokt8vvrt" path="res://Script/server_main.gd" id="1_oueo7"]
+
+[node name="Main" type="CanvasLayer"]
+script = ExtResource("1_oueo7")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="ColorRect" type="ColorRect" parent="MarginContainer"]
+layout_mode = 2
+color = Color(0.509286, 0.509286, 0.509286, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Placeholder" type="Control" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="HBoxContainer1" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Placeholder1" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer1"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer1"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+text = "127.0.0.1"
+placeholder_text = "输入服务器地址,默认 127.0.0.1"
+
+[node name="LineEdit2" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer1"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.6
+text = "7788"
+placeholder_text = "端口,默认7788"
+
+[node name="CreatServer_Btn" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer1"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.7
+text = "创建服务器"
+
+[node name="Placeholder2" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer1"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 20
+
+[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 24
+text = "---
+"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_constants/separation = 30
+
+[node name="Placeholder1" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="Test_Btn" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "已连接客户端的数组(ID)"
+
+[node name="Clear_Btn" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+text = "清空页面"
+
+[node name="CloseServer_Btn" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "关闭服务器"
+
+[node name="Placeholder2" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="Placeholder4" type="Control" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://bhwp0x2pqclmn")
+spawn_path = NodePath("Example_Area")
+
+[node name="Example_Area" type="Node" parent="MultiplayerSpawner"]
+
+[node name="MultiplayerSpawner2" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://clw3kjtxkvboy")
+spawn_path = NodePath("BulletManager")
+
+[node name="BulletManager" type="Node" parent="MultiplayerSpawner2"]
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer1/CreatServer_Btn" to="." method="_creat_server_button_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer2/Test_Btn" to="." method="_Test_Btn_press"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer2/Clear_Btn" to="." method="_Clear_Btn_press"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer2/CloseServer_Btn" to="." method="_close_server_button_pressed"]

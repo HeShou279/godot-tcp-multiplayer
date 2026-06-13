@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://clw3kjtxkvboy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7p4ci"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_w63l4"]
+
+[node name="Bullet" type="Area2D"]
+visible = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_7p4ci")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_w63l4")
