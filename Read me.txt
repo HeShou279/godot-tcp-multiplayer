@@ -1,27 +1,296 @@
-这是一个用于测试Godot通过TCP联机的项目,分为服务器模块和客户端模块
+============================================================================
+  Godot 4.6 局域网联机项目 — 新手示范工程
+============================================================================
 
-项目目标:
+本项目是一个面向 Godot 联机初学者的完整示例，演示如何使用 ENetMultiplayerPeer
+构建"服务器权威" (Server-Authoritative) 架构的多人游戏原型。
 
-服务器功能:
-1)创建服务器
-2)侦测客户端的连接与断开
-3)侦测客户端的交互性操作
-4)预留"干预客户端"的接口
+引擎版本: Godot 4.6.3
+渲染器:   GL Compatibility
+网络层:   ENetMultiplayerPeer (基于 UDP，Godot 内置高层 API)
 
-客户端功能:
-1)尝试连接服务器
-1.1)若连接成功,更新客户端/服务器信息
-1.2)若连接失败,返回失败原因
 
-2)连接服务器后
-2.1)创建玩家实例,该实例预创建时随鼠标指针移动,创建后在鼠标区域生成该实例,同时与服务器同步位置
-2.2)该玩家实例可发射子弹,子弹功能见 3 (未实现,预计实现)
-2.3)玩家实例离开服务器后,其子弹不会消失,继续留在服务器,直到满足该子弹消失的条件
+============================================================================
+  目录
+============================================================================
 
-3)子弹功能
-3.1)子弹应沿直线飞行,并满足以下条件后消失
-	·子弹飞行一段距离/时间
-	·子弹击中其他玩家
-3.2)为测试2.3功能,子弹的速度可设置得极慢,以留充足的时间验证
+  1. 项目结构
+  2. 快速开始
+  3. 核心架构概念
+  4. RPC 通信详解
+  5. 功能流程
+  6. 文件导航
+  7. 学习路线
 
-客户端的所有交互性操作(如创建实例,生成子弹,子弹击中/消失)都应在服务器留档,并输出信息
+
+============================================================================
+  1. 项目结构
+============================================================================
+
+  TCP_client/          客户端工程 (用 Godot 打开此目录)
+    autoload/
+      network_manager.gd     网络通信单例（核心）
+      bullet_tracker.gd      子弹生命周期管理
+    Scene/
+      client_main.tscn       主场景 (含 UI + 容器节点)
+      player.tscn            玩家模板 (含脚本/精灵/碰撞体/同步器)
+      bullet.tscn            子弹模板
+      preview.tscn           生成位置预览体
+    Sprite/
+      client_main.gd         客户端 UI 控制器
+      player.gd              玩家角色逻辑
+      bullet.gd              子弹飞行与碰撞
+      preview.gd             预览体逻辑
+
+  TCP_server/          服务器工程 (用 Godot 打开此目录)
+    autoload/
+      network_manager.gd     服务器网络核心
+    Scene/
+      server_main.tscn       服务器主场景 (含 UI + 容器节点)
+      player.tscn            玩家模板 (仅碰撞体+同步器，无脚本)
+      bullet.tscn            子弹模板 (仅碰撞体+同步器，无脚本)
+    Script/
+      server_main.gd         服务器 UI 控制器
+
+  关键差异:
+    - 客户端模板包含完整脚本和精灵，服务器模板仅有碰撞体 + 同步器骨架。
+    - 两个工程共享相同目录结构，但 .godot 文件各自独立，需分开打开。
+    - autoload 名称必须一致 (NetworkManager, BulletTracker)，RPC 路由依赖
+      绝对路径 "/root/AutoloadName" 匹配。
+
+
+============================================================================
+  2. 快速开始
+============================================================================
+
+  前提: 安装 Godot 4.6.3 或更高版本
+
+  步骤 1 — 打开服务器工程:
+    用 Godot 打开 TCP_server 目录，点击运行 (F5)。
+
+  步骤 2 — 创建服务器:
+    在服务器 UI 点击"创建服务器"，默认监听 127.0.0.1:7788。
+
+  步骤 3 — 打开客户端工程:
+    用 Godot 打开 TCP_client 目录，点击运行 (F5)。
+    可多次运行以模拟多个客户端。
+
+  步骤 4 — 连接服务器:
+    在客户端 UI 点击"连接服务器"。
+    连接成功后，"创建角色实例"和"登出服务器"按钮变为可用。
+
+  步骤 5 — 测试功能:
+    点击"创建角色实例" → 鼠标位置出现预览体 → 左键确认生成。
+    WASD 移动，鼠标左键射击。
+    观察服务器日志面板中的 RPC 事件记录。
+
+  局域网测试:
+    将客户端地址从 127.0.0.1 改为服务器所在电脑的局域网 IP。
+    确保防火墙允许 7788 端口的 UDP 通信 (ENet 使用 UDP)。
+
+
+============================================================================
+  3. 核心架构概念
+============================================================================
+
+  【服务器权威 (Server-Authoritative) 模型】
+
+    服务器 (peer ID = 1) 拥有所有游戏对象的创建权和销毁权。
+    客户端不能自行创建远程实例，必须通过 RPC "请求" 服务器操作。
+    服务器验证请求后，广播给所有客户端执行。
+
+    优点: 防作弊、状态一致、逻辑集中在服务器。
+    代价: 客户端操作有往返延迟 (RTT)，对快节奏游戏需做客户端预测。
+
+  【网络权限 (Multiplayer Authority)】
+
+    每个节点有一个 multiplayer_authority 属性。
+    只有拥有权威的 peer 可以驱动该节点的逻辑。
+    本项目中:
+      - 所有节点的 authority 设为其创建者 peer_id
+      - Player.gd 和 Bullet.gd 中所有逻辑由 is_multiplayer_authority() 守卫
+      - 非权威端仅通过 MultiplayerSynchronizer 观察 position/rotation
+
+  【ENetMultiplayerPeer】
+
+    Godot 内置的高层网络对等体，底层基于 ENet 库 (UDP)。
+    提供连接管理、RPC、节点同步等功能。
+    在 Godot 4.6 中未被弃用，是局域网联机的最佳选择。
+
+  【MultiplayerSynchronizer】
+
+    附加在节点上的自动同步组件，配置在 .tscn 文件中。
+    本项目同步的属性:
+      - Player:  position (ON_CHANGE 模式 — 仅在变化时发送)
+      - Bullet:  position + rotation (ON_CHANGE)
+    权威端修改属性 → 自动广播到服务器 → 服务器转发给其他客户端。
+    无需手写任何同步代码。
+
+
+============================================================================
+  4. RPC 通信详解
+============================================================================
+
+  【RPC 调用方式】
+
+    .rpc()            广播到所有远程 peer
+    .rpc_id(id, ...)  发送到指定 peer
+
+  【@rpc 注解参数】
+
+    第一个参数 — 谁可以调用:
+      "authority"    仅 multiplayer_authority 持有者可调用
+      "any_peer"     任何 peer 可调用
+
+    第二个参数 — 执行位置:
+      "call_remote"  仅在远程端执行 (本地端方法体为 pass)
+      "call_local"   本地端也执行
+
+    第三个参数 — 传输模式:
+      "reliable"     保证送达 (TCP 风格)
+      "unreliable_ordered"  不保证送达但有序 (UDP 风格)
+
+  【RPC 存根 (Stub)】
+
+    客户端 NetworkManager 中的 _server_req_* 方法体为 pass，
+    仅用于 rpc_id(target, "method_name", ...) 的 @rpc 配置查找。
+    实际逻辑在服务器端的同名方法中执行。
+
+  【本项目完整的 RPC 通信表】
+
+    客户端 ──rpc_id(1)──▶ 服务器
+      _server_req_spawn_player(peer_id, pos)      请求创建玩家
+      _server_req_spawn_bullet(peer_id, bid, pos, dir)  请求创建子弹
+      _server_req_remove_bullet(owner_id, bid, pos)     通知子弹超距
+      _server_req_bullet_hit(owner, bid, target, pos)   通知命中
+
+    服务器 ──.rpc()──▶ 所有客户端
+      server_spawn_player(peer_id, pos)            广播: 创建远程玩家
+      server_spawn_bullet(owner, bid, pos, dir)     广播: 创建远程子弹
+      server_remove_player(peer_id)                广播: 移除玩家
+      server_remove_bullet(owner_id, bid)           广播: 移除子弹
+      server_player_hit(hit_player_id)             广播: 触发受击动画
+      server_verify_shot(bullet_id, pos)            广播: 验证子弹位置
+
+
+============================================================================
+  5. 功能流程
+============================================================================
+
+  【玩家生成】
+    1. 客户端点击"创建角色实例" → Preview 跟随鼠标
+    2. 左键确认位置 → client_main 调用 NetworkManager.request_spawn_player()
+    3. 客户端预创建本地玩家 (权威端)
+       · 节点名 = str(peer_id)
+       · set_multiplayer_authority(peer_id)
+    4. rpc_id(1, "_server_req_spawn_player", ...) 通知服务器
+    5. 服务器创建玩家模板 → 设置 authority → 加入 Example_Area
+    6. 服务器 .rpc() 广播 server_spawn_player 给所有客户端
+    7. 其他客户端收到广播 → 创建远程玩家 (非权威端，仅展示)
+
+  【子弹生成与飞行】
+    1. 权威客户端 Player._shoot() → NetworkManager.request_spawn_bullet()
+    2. BulletTracker 分配 bullet_id → 本地预创建子弹 (预测)
+    3. rpc_id(1, "_server_req_spawn_bullet", ...) 通知服务器
+    4. 服务器创建子弹模板 → 设置 authority → 广播
+    5. 权威端 bullet._physics_process() 驱动飞行
+    6. MultiplayerSynchronizer 自动同步 position/rotation 到其他客户端
+
+  【子弹命中检测】
+    1. 子弹 Area2D.body_entered 信号触发 (仅权威端)
+       · 判断 body 是 CharacterBody2D (玩家)
+       · 排除自伤 (hit_player_id != owner_id)
+    2. rpc_id(1, "_server_req_bullet_hit", ...) 上报服务器
+    3. 服务器: ①移除子弹 ②广播 server_remove_bullet ③广播 server_player_hit
+    4. 所有客户端 server_player_hit → play_hit_animation() 白色闪烁
+
+  【子弹超距销毁】
+    1. 权威端 bullet._physics_process() 累计 _traveled_distance
+    2. >= MAX_DISTANCE (1000px) → rpc_id(1, "_server_req_remove_bullet")
+    3. 服务器移除子弹并广播
+
+  【客户端登出清理】
+    1. client_main._on_exit_server_btn_pressed()
+       → NetworkManager.disconnect_from_server()
+    2. _close_connection(): 断开信号 → 清理容器 (remove_child + queue_free)
+       → 关闭 peer → 置空 multiplayer_peer
+    3. 服务器 _on_peer_disconnected → _cleanup_player()
+       → 移除该玩家的所有子弹 + 玩家实例 + 广播
+
+  【晚期加入同步】
+    1. 新客户端连接 → 服务器 _on_peer_connected
+    2. call_deferred 延迟一帧调用 _sync_existing_state
+    3. 遍历 Example_Area 和 BulletManager 中所有子节点
+    4. 逐一 rpc_id(new_peer, ...) 发送给新客户端
+    5. 新客户端创建对应的远程实例
+
+  【玩家碰撞 (防重叠)】
+    collision_layer = 2, collision_mask = 2
+    move_and_slide() 自动滑开，无需额外代码。
+
+
+============================================================================
+  6. 文件导航
+============================================================================
+
+  想理解联机原理，建议按以下顺序阅读代码:
+
+    [入门]
+    TCP_client/autoload/network_manager.gd   ← 从顶部文档注释开始，
+                                                 了解整体 RPC 通信方向
+
+    [RPC 流程]
+    TCP_server/autoload/network_manager.gd   ← 服务器端如何处理请求、
+                                                 如何广播、如何清理
+
+    [实例生命周期]
+    TCP_client/Sprite/player.gd              ← is_multiplayer_authority 守卫
+    TCP_client/Sprite/bullet.gd              ← 权威端飞行 + 碰撞检测
+
+    [辅助系统]
+    TCP_client/autoload/bullet_tracker.gd    ← 预测层 vs 权威层
+    TCP_client/Sprite/preview.gd             ← 纯本地 UI 交互
+
+    [UI 层]
+    TCP_client/Sprite/client_main.gd         ← 按钮状态机 + 信号监听
+    TCP_server/Script/server_main.gd         ← 服务器 UI
+
+    [场景配置]
+    TCP_client/Scene/client_main.tscn        ← 查看 MultiplayerSynchronizer 配置
+    TCP_client/Scene/player.tscn             ← 查看 collision_layer/mask
+    TCP_client/Scene/bullet.tscn             ← 查看 area 碰撞配置
+
+
+============================================================================
+  7. 学习路线
+============================================================================
+
+  第一阶段 — 理解网络身份:
+    - 运行服务器 + 2 个客户端，观察日志面板中的 peer ID
+    - 在 player.gd 的 _enter_tree() 中理解 name → authority 的映射
+    - 在 bullet.gd 中找所有 is_multiplayer_authority() 守卫
+
+  第二阶段 — 追踪一个 RPC 调用:
+    - 从 player._shoot() 开始，逐步追踪到服务器 _server_req_spawn_bullet
+    - 再追踪广播 server_spawn_bullet 到其他客户端
+    - 在服务器日志中观察整个过程
+
+  第三阶段 — 修改实验:
+    - 修改 BulletTracker.SPEED 观察速度变化
+    - 修改 BulletTracker.MAX_DISTANCE 观察射程变化
+    - 在 play_hit_animation() 中修改 Color 值观察不同闪烁效果
+    - 尝试添加新的 RPC (如聊天消息) 练习 RPC 通信
+
+  第四阶段 — 深入:
+    - 理解 _sync_existing_state 的 call_deferred 延迟机制
+    - 理解 _clear_containers 中 remove_child + queue_free 的原因
+    - 尝试实现玩家血量系统 (需要新增 RPC + 服务器端数据)
+
+
+============================================================================
+  参考资料
+
+  Godot 官方文档:
+    - 高级多人游戏: https://docs.godotengine.org/en/stable/tutorials/networking/high_level_multiplayer.html
+    - ENetMultiplayerPeer: https://docs.godotengine.org/en/stable/classes/class_enetmultiplayerpeer.html
+    - MultiplayerSynchronizer: https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html
