@@ -18,6 +18,7 @@ var _spawn_position: Vector2 = Vector2(500, 500)
 @onready var _port_input: LineEdit = $MarginContainer/VBoxContainer/HBoxContainer/LineEdit2
 @onready var _connect_btn: Button = $MarginContainer/VBoxContainer/HBoxContainer/ConnectToServer_Btn
 @onready var _generate_btn: Button = $MarginContainer/VBoxContainer/HBoxContainer/GenerateRoles_Btn
+@onready var _exit_Server_btn: Button = $MarginContainer/VBoxContainer/HBoxContainer/ExitServer_Btn
 @onready var _preview: Sprite2D = $Preview
 
 # ============================================================
@@ -54,6 +55,13 @@ func _on_connect_btn_pressed() -> void:
 func _on_generate_btn_pressed() -> void:
 	_preview.show_preview()
 
+## 登出服务器
+func _on_exit_server_btn_pressed() -> void:
+	_append_log("正在登出服务器...")
+	_exit_Server_btn.disabled = true
+	_generate_btn.disabled = true
+	NetworkManager.disconnect_from_server()
+
 ## 预览体确认回调
 func _on_preview_confirm(position: Vector2) -> void:
 	_spawn_position = position
@@ -67,15 +75,19 @@ func _on_preview_confirm(position: Vector2) -> void:
 
 func _on_connected() -> void:
 	_append_log("连接成功，ID: %d" % NetworkManager.get_peer_id())
+	_connect_btn.disabled = true
+	_exit_Server_btn.disabled = false
 	_generate_btn.disabled = false
 
 func _on_connection_failed() -> void:
 	_append_log("连接失败，服务器未响应")
 	_connect_btn.disabled = false
+	_exit_Server_btn.disabled = true
 
 func _on_server_disconnected() -> void:
 	_append_log("与服务器断开连接")
 	_connect_btn.disabled = false
+	_exit_Server_btn.disabled = true
 	_generate_btn.disabled = true
 
 func _on_remote_player_spawned(player_id: int) -> void:

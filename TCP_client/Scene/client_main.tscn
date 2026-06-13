@@ -1,12 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://d3arfq0hb4w02"]
+[gd_scene format=3 uid="uid://d3arfq0hb4w02"]
 
 [ext_resource type="Script" uid="uid://dthpxjuidssrp" path="res://Sprite/client_main.gd" id="1_rl0qa"]
 [ext_resource type="PackedScene" uid="uid://dm4dpr2wjbw4j" path="res://Scene/preview.tscn" id="2_u116g"]
 
-[node name="Main" type="Node"]
+[node name="Main" type="Node" unique_id=1412270746]
 script = ExtResource("1_rl0qa")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=462167781]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -17,81 +17,89 @@ theme_override_constants/margin_top = 50
 theme_override_constants/margin_right = 50
 theme_override_constants/margin_bottom = 50
 
-[node name="ColorRect" type="ColorRect" parent="MarginContainer"]
+[node name="ColorRect" type="ColorRect" parent="MarginContainer" unique_id=1938352283]
 layout_mode = 2
 size_flags_vertical = 3
 color = Color(0.548963, 0.548963, 0.548963, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1386359720]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="Placeholder1" type="Control" parent="MarginContainer/VBoxContainer"]
+[node name="Placeholder1" type="Control" parent="MarginContainer/VBoxContainer" unique_id=52892750]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1046490985]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="Placeholder1" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="Placeholder1" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=2089015733]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
-[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1144826213]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.5
 text = "127.0.0.1"
 placeholder_text = "输入服务器地址,默认 127.0.0.1"
 
-[node name="LineEdit2" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="LineEdit2" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=1784567376]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.7
 text = "7788"
 placeholder_text = "端口,默认7788"
 
-[node name="ConnectToServer_Btn" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="ConnectToServer_Btn" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=765967141]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.7
 text = "连接服务器"
 
-[node name="GenerateRoles_Btn" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="GenerateRoles_Btn" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=151935991]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.7
 disabled = true
 text = "创建角色实例"
 
-[node name="Placeholder2" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="ExitServer_Btn" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=556037171]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.7
+disabled = true
+text = "登出服务器"
+
+[node name="Placeholder2" type="Control" parent="MarginContainer/VBoxContainer/HBoxContainer" unique_id=2037979507]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer" unique_id=14914510]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/margin_left = 40
 theme_override_constants/margin_right = 40
 theme_override_constants/margin_bottom = 20
 
-[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer/MarginContainer"]
+[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer/MarginContainer" unique_id=1931933949]
 layout_mode = 2
 theme_override_font_sizes/normal_font_size = 24
 text = "---
 "
 
-[node name="Preview" parent="." instance=ExtResource("2_u116g")]
+[node name="Preview" parent="." unique_id=1320104483 instance=ExtResource("2_u116g")]
 position = Vector2(-250, -250)
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1961596726]
 position = Vector2(640, 360)
 position_smoothing_enabled = true
 
-[node name="Example_Area" type="Node" parent="."]
+[node name="Example_Area" type="Node" parent="." unique_id=226589881]
 
-[node name="BulletManager" type="Node" parent="."]
+[node name="BulletManager" type="Node" parent="." unique_id=1260129664]
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/ConnectToServer_Btn" to="." method="_on_connect_btn_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/GenerateRoles_Btn" to="." method="_on_generate_btn_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/ExitServer_Btn" to="." method="_on_exit_server_btn_pressed"]
