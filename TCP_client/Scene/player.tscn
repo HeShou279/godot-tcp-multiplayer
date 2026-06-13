@@ -15,6 +15,7 @@ properties/0/replication_mode = 1
 scale = Vector2(0.5, 0.5)
 motion_mode = 1
 collision_layer = 2
+collision_mask = 2
 script = ExtResource("1_y8w33")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

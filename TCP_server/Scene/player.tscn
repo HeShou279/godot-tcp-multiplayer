@@ -10,6 +10,7 @@ properties/0/replication_mode = 1
 
 [node name="player" type="CharacterBody2D"]
 collision_layer = 2
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_kelma")
